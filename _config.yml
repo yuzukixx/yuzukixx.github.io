@@ -34,6 +34,7 @@ twitter_image:
 facebook_app_id:
 facebook_image:
 google_analytics: UA-NNNNNNNN-N
+google_verify: 7z8fHKNsmBfEIrFFoXpjquX3MACSp1OHBEljyJdWhuM
 
 # Plugins
 gems:
