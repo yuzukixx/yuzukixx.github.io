@@ -3,10 +3,10 @@
   <generator uri="http://jekyllrb.com" version="3.3.1">Jekyll</generator>
   
   
-  <link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" />
-  <link href="http://localhost:4000/" rel="alternate" type="text/html" hreflang="en" />
-  <updated>2017-02-24T05:07:40+00:00</updated>
-  <id>http://localhost:4000//</id>
+  <link href="https://yuzukixx.github.io/feed.xml" rel="self" type="application/atom+xml" />
+  <link href="https://yuzukixx.github.io/" rel="alternate" type="text/html" hreflang="en" />
+  <updated>2017-02-24T11:12:38+00:00</updated>
+  <id>https://yuzukixx.github.io//</id>
 
   
     <title type="html">.. and maybe some interpolation</title>
@@ -30,11 +30,11 @@
       
       <title type="html">Quick analysis and prediction of HDB resale flat prices</title>
       
-      <link href="http://localhost:4000/2017/02/23/quick-analysis-and-prediction-of-hdb-resale-flat-prices/" rel="alternate" type="text/html" title="Quick analysis and prediction of HDB resale flat prices" />
+      <link href="https://yuzukixx.github.io/2017/02/23/quick-analysis-and-prediction-of-hdb-resale-flat-prices/" rel="alternate" type="text/html" title="Quick analysis and prediction of HDB resale flat prices" />
       <published>2017-02-23T00:00:00+00:00</published>
       <updated>2017-02-23T00:00:00+00:00</updated>
-      <id>http://localhost:4000/2017/02/23/quick-analysis-and-prediction-of-hdb-resale-flat-prices</id>
-      <content type="html" xml:base="http://localhost:4000/2017/02/23/quick-analysis-and-prediction-of-hdb-resale-flat-prices/">&lt;p&gt;I thought I’d do a quick analysis of HDB resale flat price data, one of the few datasets on &lt;a href=&quot;https://data.gov.sg/&quot;&gt;data.gov.sg&lt;/a&gt; that is raw enough for analysis. 
+      <id>https://yuzukixx.github.io/2017/02/23/quick-analysis-and-prediction-of-hdb-resale-flat-prices</id>
+      <content type="html" xml:base="https://yuzukixx.github.io/2017/02/23/quick-analysis-and-prediction-of-hdb-resale-flat-prices/">&lt;p&gt;I thought I’d do a quick analysis of HDB resale flat price data, one of the few datasets on &lt;a href=&quot;https://data.gov.sg/&quot;&gt;data.gov.sg&lt;/a&gt; that is raw enough for analysis. 
 &lt;!-- more --&gt;
 &lt;br /&gt;&lt;/p&gt;
 
@@ -195,11 +195,11 @@
       
       <title type="html">moodify</title>
       
-      <link href="http://localhost:4000/2017/02/19/moodify/" rel="alternate" type="text/html" title="moodify" />
+      <link href="https://yuzukixx.github.io/2017/02/19/moodify/" rel="alternate" type="text/html" title="moodify" />
       <published>2017-02-19T00:00:00+00:00</published>
       <updated>2017-02-19T00:00:00+00:00</updated>
-      <id>http://localhost:4000/2017/02/19/moodify</id>
-      <content type="html" xml:base="http://localhost:4000/2017/02/19/moodify/">&lt;p&gt;A few weeks back, I was at the annual Hack&amp;amp;Roll with some friends and we created a Telegram bot called moodify! 
+      <id>https://yuzukixx.github.io/2017/02/19/moodify</id>
+      <content type="html" xml:base="https://yuzukixx.github.io/2017/02/19/moodify/">&lt;p&gt;A few weeks back, I was at the annual Hack&amp;amp;Roll with some friends and we created a Telegram bot called moodify! 
 &lt;!-- more --&gt;&lt;/p&gt;
 
 &lt;p&gt;moodify was created to recommend a Spotify playlist based on mood. Selfies sent to it are analysed for mood using the Microsoft Emotion API, and the result was used to pick a random playlist that suits your mood.&lt;/p&gt;
