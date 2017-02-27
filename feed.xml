@@ -5,7 +5,7 @@
   
   <link href="https://yuzukixx.github.io/feed.xml" rel="self" type="application/atom+xml" />
   <link href="https://yuzukixx.github.io/" rel="alternate" type="text/html" hreflang="en" />
-  <updated>2017-02-24T11:12:38+00:00</updated>
+  <updated>2017-02-27T16:03:46+00:00</updated>
   <id>https://yuzukixx.github.io//</id>
 
   
@@ -24,6 +24,249 @@
     </author>
   
 
+  
+  
+    <entry>
+      
+      <title type="html">Can text analytics help us categorise reviews?</title>
+      
+      <link href="https://yuzukixx.github.io/2017/02/27/can-text-analytics-help-us-categorise-reviews/" rel="alternate" type="text/html" title="Can text analytics help us categorise reviews?" />
+      <published>2017-02-27T00:00:00+00:00</published>
+      <updated>2017-02-27T00:00:00+00:00</updated>
+      <id>https://yuzukixx.github.io/2017/02/27/can-text-analytics-help-us-categorise-reviews</id>
+      <content type="html" xml:base="https://yuzukixx.github.io/2017/02/27/can-text-analytics-help-us-categorise-reviews/">&lt;p&gt;Text mining is sort of a more specialised area in analytics, so here is the writeup of an assignment I did in Python that I think is a good brief introduction on how to start on it. For this assignment, we are trying to figure out if the content of a review in the Google Play Store can help us discern what category of app the review is for.
+&lt;!-- more --&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;h2&gt;The data&lt;/h2&gt;
+&lt;p&gt;The dataset I used is unavailable online, but it contains reviews from 500 apps, 100 from each of the following categories: social, education, finance, game, and weather. After some wrangling of the CSV files, I managed to combine them all in one large CSV with just 2 columns.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../../../../assets/images/27022017_data1.png&quot; alt=&quot;Sample of data file&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;
+We’ll refer to the left column as just the ‘review’ column. Each review is represented there as a string that combines both the title of the review and its actual content. On the right is the category of the app this review was for.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;h2&gt;Basic steps&lt;/h2&gt;
+&lt;ol&gt;
+  &lt;li&gt;Import all the libraries/functions needed.
+    &lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;sklearn.feature_extraction.text&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TfidfVectorizer&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;pandas&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;pd&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;numpy&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;np&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;matplotlib.pyplot&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;plt&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;itertools&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;sklearn.metrics&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;confusion_matrix&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;sklearn.naive_bayes&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MultinomialNB&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Read in the data as a pandas dataframe.
+    &lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;read_csv&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'allReviews.csv'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;columns&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'reviews'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'category'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Split the data into training and testing sets. I used a 70%-30% split.
+    &lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;rd&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;random&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rand&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;0.7&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;train&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rd&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;test&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rd&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;y_train&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;train&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'category'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;y_test&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'category'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;x_train&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;train&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'reviews'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;x_test&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'reviews'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Preprocess the textual data and create a sparse feature matrix from it using scikit-learn’s TfidfVectorizer.&lt;/p&gt;
+
+    &lt;p&gt;TfidfVectorizer does most of the basic text preprocessing steps for us e.g. conversion to lowercase and filtering stop words, as well as turning it into the sparse feature matrix of tokens we will use as input. However, it is not easy to introduce stemming into the process (at least at the time of writing).&lt;/p&gt;
+
+    &lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; &lt;span class=&quot;n&quot;&gt;vectorizer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TfidfVectorizer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip_accents&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'ascii'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;decode_error&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'ignore'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;stop_words&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'english'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+ &lt;span class=&quot;n&quot;&gt;X&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;vectorizer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fit_transform&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x_train&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Train a classifier using our training data. I chose to use naive Bayes because of its speed.
+    &lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;model&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MultinomialNB&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;X&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;y_train&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Transform the testing data into a feature matrix and use our previously trained classifier to predict their category.
+    &lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;predictTfidf&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;vectorizer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;transform&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x_test&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;predicted&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;model&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;predict&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;predictTfidf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Output the results.
+    &lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;cnf_matrix&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;confusion_matrix&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;y_test&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;predicted&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Accuracy: &quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cnf_matrix&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cnf_matrix&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cnf_matrix&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cnf_matrix&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cnf_matrix&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x_test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;I also adapted some code from &lt;a href=&quot;http://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html#sphx-glr-auto-examples-model-selection-plot-confusion-matrix-py&quot;&gt;here&lt;/a&gt; to print out a nice confusion matrix.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../../../../assets/images/27022017_cm1.png&quot; alt=&quot;Confusion matrices (all data)&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The accuracy here is about 68%. Much better than the expected 20% accuracy for random guessing, but we can do better.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;h2&gt;Refining the model&lt;/h2&gt;
+
+&lt;h3&gt;Removing non-English characters/less significant data points&lt;/h3&gt;
+&lt;p&gt;The vast majority of reviews appear to be in English, so it would simplify things without losing too much information if we filtered out all non-alphanumeric characters (including emojis).&lt;/p&gt;
+
+&lt;p&gt;In addition, we should filter out reviews which are too short because for the most part, these reviews do not have enough information to be classified. As an example, consider a review which simply says ‘Great app.’ It is equally applicable to any of the categories and as such not particularly useful in training or testing our classifier.&lt;/p&gt;
+
+&lt;p&gt;We can consider review length in 2 ways: by its word count or by its character count. Counting the number of words is theoretically possible by using the nltk package’s word_tokenize function, but it slows down the processing a lot. Using a character count is much faster, with basically the same benefit, so that’s what I used. I ran the code 3 times, filtering reviews with less than 10 characters, 50 characters, and 100 characters respectively.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Cut-off point chosen&lt;/th&gt;
+      &lt;th&gt; &lt;/th&gt;
+      &lt;th&gt;10 characters&lt;/th&gt;
+      &lt;th&gt; &lt;/th&gt;
+      &lt;th&gt;50 characters&lt;/th&gt;
+      &lt;th&gt; &lt;/th&gt;
+      &lt;th&gt;100 characters&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Number of reviews remaining&lt;/td&gt;
+      &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;1 326 290&lt;/td&gt;
+      &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;655 355&lt;/td&gt;
+      &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;339 078&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Accuracy&lt;/td&gt;
+      &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;71%&lt;/td&gt;
+      &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;79.6%&lt;/td&gt;
+      &lt;td&gt; &lt;/td&gt;
+      &lt;td&gt;82%&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Note&lt;/strong&gt;: Even with the exact dataset I used, the numbers above will vary every time because I redo the random splitting of dataset. But with a dataset this size, the approximate value is always about the same.&lt;/p&gt;
+
+&lt;p&gt;As seen from the table above, the accuracy of the model generally increases when we take longer reviews, which is the expected result. Finance is the category that is best predicted, followed by social, game, then weather and education.&lt;/p&gt;
+
+&lt;p&gt;There is a large jump in accuracy between taking reviews that have at least 10 characters and those that have at least 50, but a much smaller one between taking reviews that have at least 50 characters and reviews that have at least 100. Given that it is more useful for a classifier to be able to classify a wider range of reviews, it is reasonable to trade off some accuracy for the ability to classify more reviews. From this point on, we will use only reviews with at least 50 characters.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;h3&gt;N-grams&lt;/h3&gt;
+&lt;p&gt;We can use the ngram_range parameter of TfidfVectorizer to take into account n-grams. Previously, each feature was a single word with 2 or more alphanumeric characters. In this case, I chose to try adding the parameter ngram_range = (1,2) to consider both single words and pairs of words.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../../../../assets/images/27022017_cm2.png&quot; alt=&quot;Confusion matrices (&amp;gt;=50 characters, ngram_range = (1,2))&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The above are the confusion matrices generated whien I ran the code once, using only reviews with more than 50 characters and also taking into account pairs of words. The accuracy was about 78.5%, not much different from when we only considered single words.&lt;/p&gt;
+
+&lt;p&gt;More importantly, taking into account pairs of words seems to increase the accuracy of categorising the finance and social app reviews (which have more data points) at the expense of the other 3 categories. Since it appears to slightly overvalue categories with more training data, we’ll drop this from consideration.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;h3&gt;Number of features used&lt;/h3&gt;
+&lt;p&gt;Generally, when we create a feature matrix from our training data, we end up with slightly over 100 000 features used in our classifier. We can reduce the number of features that are used in training our classifier to prevent overfitting to our training data. This can be adjusted using the max_features parameter of TfidfVectorizer.&lt;/p&gt;
+
+&lt;p&gt;I ran the Python script 10 times, at intervals of 10 000 features, to try and get an idea of how the accuracy changes according to the number of features used.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../../../../assets/images/27022017_graph1.png&quot; alt=&quot;Accuracy against number of features&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This is the graph of accuracy against the number of features used to train the classifier, with a best fit curve overlaid over the plot. It peaks at about 30 000 features.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../../../../assets/images/27022017_cm3.png&quot; alt=&quot;Confusion matrices (&amp;gt;=50 characters, 30 000 features&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;These are the confusion matrices generated, considering only reviews with at least 50 characters and using 30 000 features to train the classifier.&lt;/p&gt;
+
+&lt;p&gt;From the graph of accuracy against number of features, the absolute increase in accuracy is small (1% or less). However, the confusion matrices show that taking fewer features appears to make the model more robust by minimising the effects of the differences in amount of training data available for each category. Education, game and weather all have significantly more correct predictions, while finance and social have slightly less. Hence I chose to leave this in the script.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;h3&gt;Using different classifiers&lt;/h3&gt;
+&lt;p&gt;Previously, I mentioned that I used naive Bayes as the main classifier because it was relatively fast and still quite accurate, which made it ideal for use while we tested and refined the model. However, other classifiers may do a better job, so I repeated the classification process (reviews &amp;gt;= 50 characters, number of features used = 30 000) with random forest and linear support vector classifiers.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../../../../assets/images/27022017_cm4.png&quot; alt=&quot;Confusion matrices (Random Forest)&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;These are the confusion matrices generated for the random forest classifier (sklearn’s RandomForestClassifier). Its accuracy is about 76%.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../../../../assets/images/27022017_cm5.png&quot; alt=&quot;Confusion matrices (Linear SVM)&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This was the result of using a linear support vector classifier (sklearn’s LinearSVC). Its the most accurate of the 3, with an accuracy of about 82.5%. Interestingly, both random forest and linear support vector classifiers were much better at determining game reviews, as compared to naive Bayes which tended to have finance as its best predicted category.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;h2&gt;Summary&lt;/h2&gt;
+&lt;p&gt;This is the outline of the final series of steps used:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Import all libraries needed and read in the data as a pandas dataframe.&lt;/li&gt;
+  &lt;li&gt;Remove all non-alphanumeric characters from the data.&lt;/li&gt;
+  &lt;li&gt;Remove all rows where the review column is less than 50 characters.&lt;/li&gt;
+  &lt;li&gt;Split the resulting dataset into training and test sets.&lt;/li&gt;
+  &lt;li&gt;Use TfidfVectorizer for preprocessing and creation of feature matrix.&lt;/li&gt;
+  &lt;li&gt;Feed input into a linear support vector classifier.&lt;/li&gt;
+  &lt;li&gt;Predict output for the testing data and print the results.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The code for this process can be found &lt;a href=&quot;https://github.com/yuzukixx/code-snippets/blob/master/gps_review_categorisation.py&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;</content>
+
+      
+      
+      
+      
+      
+
+      
+        <author>
+            <name>yuzukixx</name>
+          
+          
+        </author>
+      
+
+      
+        <category term="python" />
+      
+        <category term="data" />
+      
+        <category term="text analytics" />
+      
+
+      
+
+      
+        <summary type="html">Text mining is sort of a more specialised area in analytics, so here is the writeup of an assignment I did in Python that I think is a good brief introduction on how to start on it. For this assignment, we are trying to figure out if the content of a review in the Google Play Store can help us discern what category of app the review is for.</summary>
+      
+
+      
+      
+    </entry>
+  
   
   
     <entry>
