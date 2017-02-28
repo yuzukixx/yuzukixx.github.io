@@ -41,6 +41,7 @@ gems:
   - jekyll-archives
   - jekyll-paginate
   - jekyll-sitemap
+  - jekyll-feed
 
 # Build settings
 markdown: kramdown

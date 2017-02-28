@@ -9,7 +9,7 @@ keywords: data, analytics, text, categorisation
 author: "yuzukixx"
 ---
 
-Text mining is sort of a more specialised area in analytics, so here is the writeup of an assignment I did in Python that I think is a good brief introduction on how to start on it. For this assignment, we are trying to figure out if the content of a review in the Google Play Store can help us discern what category of app the review is for.
+Text mining is sort of a more specialised area in analytics, so here is the writeup of an assignment I did in Python that I think is a good brief introduction to it. For this assignment, we are trying to figure out if the content of a review in the Google Play Store can help us discern what category of app the review is for.
 <!-- more -->
 
 <br>
