@@ -5,7 +5,7 @@
   
   <link href="https://yuzukixx.github.io/feed.xml" rel="self" type="application/atom+xml" />
   <link href="https://yuzukixx.github.io/" rel="alternate" type="text/html" hreflang="en" />
-  <updated>2017-02-27T16:03:46+00:00</updated>
+  <updated>2017-02-28T17:58:55+00:00</updated>
   <id>https://yuzukixx.github.io//</id>
 
   
@@ -34,7 +34,7 @@
       <published>2017-02-27T00:00:00+00:00</published>
       <updated>2017-02-27T00:00:00+00:00</updated>
       <id>https://yuzukixx.github.io/2017/02/27/can-text-analytics-help-us-categorise-reviews</id>
-      <content type="html" xml:base="https://yuzukixx.github.io/2017/02/27/can-text-analytics-help-us-categorise-reviews/">&lt;p&gt;Text mining is sort of a more specialised area in analytics, so here is the writeup of an assignment I did in Python that I think is a good brief introduction on how to start on it. For this assignment, we are trying to figure out if the content of a review in the Google Play Store can help us discern what category of app the review is for.
+      <content type="html" xml:base="https://yuzukixx.github.io/2017/02/27/can-text-analytics-help-us-categorise-reviews/">&lt;p&gt;Text mining is sort of a more specialised area in analytics, so here is the writeup of an assignment I did in Python that I think is a good brief introduction to it. For this assignment, we are trying to figure out if the content of a review in the Google Play Store can help us discern what category of app the review is for.
 &lt;!-- more --&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
@@ -260,7 +260,7 @@ We’ll refer to the left column as just the ‘review’ column. Each review is
       
 
       
-        <summary type="html">Text mining is sort of a more specialised area in analytics, so here is the writeup of an assignment I did in Python that I think is a good brief introduction on how to start on it. For this assignment, we are trying to figure out if the content of a review in the Google Play Store can help us discern what category of app the review is for.</summary>
+        <summary type="html">Text mining is sort of a more specialised area in analytics, so here is the writeup of an assignment I did in Python that I think is a good brief introduction to it. For this assignment, we are trying to figure out if the content of a review in the Google Play Store can help us discern what category of app the review is for.</summary>
       
 
       
